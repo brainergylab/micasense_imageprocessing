@@ -37,7 +37,7 @@ import pytz
 logger = logging.getLogger(__name__)
 
 
-class Metadata(object):
+class Metadata:
     """Container for Micasense image metadata"""
 
     def __init__(self, filename: str, exiftool_obj=None):

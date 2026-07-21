@@ -52,7 +52,7 @@ import micasense.plotutils as plotutils
 logger = logging.getLogger(__name__)
 
 
-class Capture(object):
+class Capture:
     """
     A Capture is a set of Images taken by one MicaSense camera which share
     the same unique capture identifier (capture_id). Generally these images will be

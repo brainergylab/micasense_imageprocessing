@@ -460,7 +460,7 @@ def aligned_capture(
     return im_cropped
 
 
-class BoundPoint(object):
+class BoundPoint:
     def __init__(self, x=0, y=0):
         self.x = x
         self.y = y
@@ -472,7 +472,7 @@ class BoundPoint(object):
         return self.__str__()
 
 
-class Bounds(object):
+class Bounds:
     def __init__(self):
         arbitrary_large_value = 100000000
         self.max = BoundPoint(-arbitrary_large_value, -arbitrary_large_value)

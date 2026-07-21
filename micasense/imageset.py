@@ -30,6 +30,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import fnmatch
 import os
+from typing import Callable, List, Optional, Tuple, Any
 
 from micasense.mp_config import spawn_pool
 
@@ -40,23 +41,26 @@ import micasense.image as image
 from micasense.imageutils import save_capture as save_capture
 
 
-def image_from_file(filename):
+def image_from_file(filename: str) -> image.Image:
     return image.Image(filename)
 
 
-class ImageSet(object):
+class ImageSet:
     """
     An ImageSet is a container for a group of captures that are processed together
     """
 
-    def __init__(self, captures):
+    def __init__(self, captures: List[capture.Capture]):
         self.captures = captures
         captures.sort()
 
     @classmethod
     def from_directory(
-        cls, directory, progress_callback=None, allow_uncalibrated=False
-    ):
+        cls,
+        directory: str,
+        progress_callback: Optional[Callable[[float], None]] = None,
+        allow_uncalibrated: bool = False,
+    ) -> "ImageSet":
         """
         Create and ImageSet recursively from the files in a directory
         """
@@ -99,7 +103,7 @@ class ImageSet(object):
             progress_callback(1.0)
         return cls(captures)
 
-    def as_nested_lists(self):
+    def as_nested_lists(self) -> Tuple[List[List[Any]], List[str]]:
         """
         Get timestamp, latitude, longitude, altitude, capture_id, dls-yaw, dls-pitch, dls-roll, and irradiance from all
         Captures.
@@ -130,7 +134,7 @@ class ImageSet(object):
             data.append(row)
         return data, columns
 
-    def dls_irradiance(self):
+    def dls_irradiance(self) -> dict:
         """
         Get utc_time and irradiance for each Capture in ImageSet.
         :return: dict {utc_time : [irradiance, ...]}
@@ -140,17 +144,18 @@ class ImageSet(object):
             dat = cap.utc_time().isoformat()
             irr = cap.dls_irradiance()
             series[dat] = irr
+        return series
 
     def save_stacks(
         self,
-        warp_matrices,
-        stack_directory,
-        thumbnail_directory=None,
-        irradiance=None,
-        multiprocess=True,
-        overwrite=False,
-        progress_callback=None,
-    ):
+        warp_matrices: List,
+        stack_directory: str,
+        thumbnail_directory: Optional[str] = None,
+        irradiance: Optional[List[float]] = None,
+        multiprocess: bool = True,
+        overwrite: bool = False,
+        progress_callback: Optional[Callable[[float], None]] = None,
+    ) -> None:
         if not os.path.exists(stack_directory):
             os.makedirs(stack_directory)
         if thumbnail_directory is not None and not os.path.exists(thumbnail_directory):

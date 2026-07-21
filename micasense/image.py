@@ -56,7 +56,7 @@ def rotations_degrees_to_rotation_matrix(rotation_degrees):
     return R
 
 
-class Image(object):
+class Image:
     """
     An Image is a single file taken by a RedEdge camera representing one
     band of multispectral information

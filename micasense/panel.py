@@ -36,7 +36,7 @@ from skimage import measure
 logger = logging.getLogger(__name__)
 
 
-class Panel(object):
+class Panel:
     def __init__(self, img, panel_corners=None, ignore_autocalibration=False):
         # if we have panel images with QR metadata, panel detection is not called,
         # so this can be forced here
