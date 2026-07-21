@@ -45,6 +45,12 @@ def image_from_file(filename: str) -> image.Image:
     return image.Image(filename)
 
 
+def _align_single_cap(args: Tuple[capture.Capture, Optional[List]]) -> capture.Capture:
+    cap, warp_matrices = args
+    cap.create_aligned_capture(warp_matrices=warp_matrices)
+    return cap
+
+
 class ImageSet:
     """
     An ImageSet is a container for a group of captures that are processed together
@@ -145,6 +151,36 @@ class ImageSet:
             irr = cap.dls_irradiance()
             series[dat] = irr
         return series
+
+    def align_captures(
+        self,
+        warp_matrices: Optional[List] = None,
+        multiprocess: bool = True,
+        progress_callback: Optional[Callable[[float], None]] = None,
+    ) -> None:
+        """
+        Align images for all Captures in the ImageSet in parallel or serially.
+        """
+        num_caps = len(self.captures)
+        if num_caps == 0:
+            if progress_callback is not None:
+                progress_callback(1.0)
+            return
+
+        if multiprocess:
+            with spawn_pool() as pool:
+                aligned_caps = []
+                args_list = [(cap, warp_matrices) for cap in self.captures]
+                for i, cap in enumerate(pool.imap(_align_single_cap, args_list)):
+                    aligned_caps.append(cap)
+                    if progress_callback is not None:
+                        progress_callback(float(i + 1) / float(num_caps))
+                self.captures = aligned_caps
+        else:
+            for i, cap in enumerate(self.captures):
+                _align_single_cap((cap, warp_matrices))
+                if progress_callback is not None:
+                    progress_callback(float(i + 1) / float(num_caps))
 
     def save_stacks(
         self,

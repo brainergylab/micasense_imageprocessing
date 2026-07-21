@@ -76,3 +76,10 @@ def test_10_band_from_dir(ten_band_files_dir):
     assert imgset is not None
     assert progress_val == 1.0
     assert len(imgset.captures) == 2
+
+
+def test_align_captures(files_dir):
+    imgset = imageset.ImageSet.from_directory(files_dir)
+    imgset.align_captures(multiprocess=False)
+    for cap in imgset.captures:
+        assert cap.aligned_shape() is not None
